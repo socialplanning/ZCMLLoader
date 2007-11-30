@@ -1,0 +1,22 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:meta="http://namespaces.zope.org/meta">
+  <meta:directives namespace="http://namespaces.openplans.org/opencore">
+    <meta:directive
+       name="ini-include"
+       schema=".meta.IIncludes"
+       handler=".meta.load"
+     />
+    <meta:directive
+       name="ini-include-overrides"
+       schema=".meta.IIncludeOverrides"
+       handler=".meta.load_overrides"
+     />
+    <meta:directive
+       name="load-opencore-config"
+       schema=".meta.IOpencoreConfigFile"
+       handler=".meta.load_opencore_config"
+     />
+
+  </meta:directives>
+</configure>

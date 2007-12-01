@@ -15,6 +15,12 @@ class IOpencoreConfigFile(Interface):
         description=u'Name of a configuration file to be loaded',
         required=True)
 
+class IOpencoreEntryPoints(Interface):
+    """an entry point group to load up"""
+    group = TextLine(
+        title=u'Entry point group name',
+        description=u'Name of an entry point group to be loaded',
+        required=True)
 
 class IIncludes(Interface):
     zcmlgroup = TextLine(
@@ -46,12 +52,18 @@ def load_opencore_config(_context, file=None):
     cp.read(file)
     _opencore_config = cp
 
-def load_entry_points(_content, group):
+def load_entry_points(_content, group=None):
     global _opencore_config
+
+    if group is None:
+        # do default?
+        pass
+
     for ep in pkr.iter_entry_points(group):
-        zcmlmap = ep.load()
-        for section in ('meta.zcml', 'configure.zcml', 'overrides.zcml'):
-            _opencore_config.set(section, ep.distname, zcmlmap[section])
+        dist = ep.dist
+        dist_name = dist.project_name
+        filename = ep.load()
+        _opencore_config.set(ep.name, dist_name, filename)
 
 def load(_context, zcmlgroup='configure.zcml', override=False):
     global _opencore_config

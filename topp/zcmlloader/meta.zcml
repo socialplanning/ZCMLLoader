@@ -17,6 +17,10 @@
        schema=".meta.IOpencoreConfigFile"
        handler=".meta.load_opencore_config"
      />
-
+    <meta:directive
+       name="load-entry-points"
+       schema=".meta.IOpencoreEntryPoints"
+       handler=".meta.load_entry_points"
+     />
   </meta:directives>
 </configure>

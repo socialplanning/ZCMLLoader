@@ -6,6 +6,9 @@
   <include package="Products.Five" />
   <meta:redefinePermission from="zope2.Public" to="zope.Public" />
 
+  <!-- Preload from entry points -->
+  <opencore:load-entry-points
+     group="opencore.plugin"/>
 
   <!-- Load the meta -->
 

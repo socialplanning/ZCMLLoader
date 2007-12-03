@@ -62,8 +62,14 @@ def load_entry_points(_content, group=None):
     for ep in pkr.iter_entry_points(group):
         dist = ep.dist
         dist_name = dist.project_name
-        filename = ep.load()
-        _opencore_config.set(ep.name, dist_name, filename)
+        module = ep.load()
+        import types
+        if not isinstance(module, types.ModuleType):
+            continue
+        path = module.__path__[0]
+        if not path.endswith(os.sep):
+            path = path + os.sep
+        _opencore_config.set(ep.name, dist_name, path)
 
 def load(_context, zcmlgroup='configure.zcml', override=False):
     global _opencore_config
@@ -79,10 +85,8 @@ def load(_context, zcmlgroup='configure.zcml', override=False):
 
     for dist, filename in items:
         req = pkr.Requirement.parse(dist)
-        if not filename.endswith('/'):
-            filename = pkr.resource_filename(req, filename)
-        else:
-            filename = pkr.resource_filename(req, zcmlgroup)
+        if filename.endswith(os.sep):
+            filename = os.path.join(filename, zcmlgroup)
         include(_context, filename)
 
 def load_overrides(_context, zcmlgroup='overrides.zcml'):

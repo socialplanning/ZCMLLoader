@@ -6,10 +6,6 @@
   <include package="Products.Five" />
   <meta:redefinePermission from="zope2.Public" to="zope.Public" />
 
-  <!-- Preload from entry points -->
-  <opencore:load-entry-points
-     group="opencore.plugin"/>
-
   <!-- Load the meta -->
 
   <include files="package-includes/*-meta.zcml" />
@@ -17,8 +13,8 @@
 
   <opencore:load-opencore-config 
      file="/Users/whit/dev/nui2/zope/etc/opencore.ini"/>
-
-  <!-- opencore:load-entry-point-options group='opencore.featurelets' /-->
+  <opencore:load-entry-points
+     group="opencore.plugin"/>
 
   <opencore:ini-include zcmlgroup="meta.zcml" />
 

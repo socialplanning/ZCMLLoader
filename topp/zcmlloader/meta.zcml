@@ -1,7 +1,7 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:meta="http://namespaces.zope.org/meta">
-  <meta:directives namespace="http://namespaces.openplans.org/opencore">
+  <meta:directives namespace="http://namespaces.openplans.org/topp">
     <meta:directive
        name="ini-include"
        schema=".meta.IIncludes"
@@ -13,13 +13,13 @@
        handler=".meta.load_overrides"
      />
     <meta:directive
-       name="load-opencore-config"
-       schema=".meta.IOpencoreConfigFile"
-       handler=".meta.load_opencore_config"
+       name="load-config"
+       schema=".meta.IConfigFile"
+       handler=".meta.load_config"
      />
     <meta:directive
        name="load-entry-points"
-       schema=".meta.IOpencoreEntryPoints"
+       schema=".meta.IEntryPoints"
        handler=".meta.load_entry_points"
      />
   </meta:directives>

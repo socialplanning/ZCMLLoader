@@ -8,14 +8,14 @@ from zope.schema import TextLine
 import os
 
 
-class IOpencoreConfigFile(Interface):
+class IConfigFile(Interface):
     """a config file to load up"""
     file = BytesLine(
         title=u'Configuration file name',
         description=u'Name of a configuration file to be loaded',
         required=True)
 
-class IOpencoreEntryPoints(Interface):
+class IEntryPoints(Interface):
     """an entry point group to load up"""
     group = TextLine(
         title=u'Entry point group name',
@@ -40,20 +40,20 @@ class IIncludeOverrides(Interface):
         )
 
 
-_opencore_config = None
+_config = None
 
-def load_opencore_config(_context, file=None):
-    global _opencore_config
+def load_config(_context, file=None):
+    global _config
         
     if file is None:
         # do default?
         pass
     cp = ConfigParser()
     cp.read(file)
-    _opencore_config = cp
+    _config = cp
 
 def load_entry_points(_content, group=None):
-    global _opencore_config
+    global _config
 
     if group is None:
         # do default?
@@ -63,14 +63,14 @@ def load_entry_points(_content, group=None):
         dist = ep.dist
         dist_name = dist.project_name
         filename = ep.load()
-        _opencore_config.set(ep.name, dist_name, filename)
+        _config.set(ep.name, dist_name, filename)
 
 def load(_context, zcmlgroup='configure.zcml', override=False):
-    global _opencore_config
+    global _config
     include = xmlconfig.include
     if override:
         include = xmlconfig.includeOverrides
-    cp = _opencore_config
+    cp = _config
     try:
         items = cp.items(zcmlgroup)
     except NoSectionError:
@@ -88,5 +88,5 @@ def load(_context, zcmlgroup='configure.zcml', override=False):
 def load_overrides(_context, zcmlgroup='overrides.zcml'):
     load(_context, zcmlgroup, override=True)
     
-def get_opencore_config(self):
-    return _opencore_config
+def get_config(self):
+    return _config

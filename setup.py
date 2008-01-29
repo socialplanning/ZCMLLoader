@@ -27,7 +27,10 @@ setup(name='ZCMLLoader',
         ],
       install_requires=[
           'setuptools',
-          'zope.dottedname'
+          'zope.dottedname',
+          'zope.configuration',
+          'zope.interface',
+          'zope.schema'
           # -*- Extra requirements: -*-
       ],
       entry_points="""

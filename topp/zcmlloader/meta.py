@@ -5,6 +5,7 @@ import pkg_resources as pkr
 from zope.interface import Interface
 from zope.schema import BytesLine
 from zope.schema import TextLine
+from zope.dottedname.resolve import resolve
 import os
 
 
@@ -44,7 +45,6 @@ _config = None
 
 def load_config(_context, file=None):
     global _config
-        
     if file is None:
         # do default?
         pass
@@ -71,19 +71,20 @@ def load(_context, zcmlgroup='configure.zcml', override=False):
     if override:
         include = xmlconfig.includeOverrides
     cp = _config
+
     try:
         items = cp.items(zcmlgroup)
     except NoSectionError:
         print "no section: %s" %zcmlgroup
         return
 
-    for dist, filename in items:
+    for dist, dotted_package in items:
         req = pkr.Requirement.parse(dist)
-        if not filename.endswith('/'):
-            filename = pkr.resource_filename(req, filename)
-        else:
-            filename = pkr.resource_filename(req, zcmlgroup)
-        include(_context, filename)
+        module_path = os.path.join(*dotted_package.split('.'))
+        filename = os.path.join(module_path, zcmlgroup)
+        filename = pkr.resource_filename(req, filename)
+        dep_package = resolve(dotted_package)
+        include(_context, file=filename, package=dep_package)
 
 def load_overrides(_context, zcmlgroup='overrides.zcml'):
     load(_context, zcmlgroup, override=True)

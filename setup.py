@@ -24,9 +24,10 @@ setup(name='ZCMLLoader',
       zip_safe=False,
       dependency_links=[
         'https://svn.openplans.org/svn/snowsprint/z3c.autoinclude/trunk#egg=z3c.autoinclude-dev',
+        ],
       install_requires=[
           'setuptools',
-          'z3c.autoinclude'
+          'zope.dottedname'
           # -*- Extra requirements: -*-
       ],
       entry_points="""

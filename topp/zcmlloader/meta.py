@@ -73,7 +73,7 @@ def load(_context, zcmlgroup='configure.zcml', override=False):
     cp = _config
 
     try:
-        items = cp.items(zcmlgroup)
+        items = cp.items('opencore.plugin')
     except NoSectionError:
         print "no section: %s" %zcmlgroup
         return
@@ -83,8 +83,10 @@ def load(_context, zcmlgroup='configure.zcml', override=False):
         module_path = os.path.join(*dotted_package.split('.'))
         filename = os.path.join(module_path, zcmlgroup)
         filename = pkr.resource_filename(req, filename)
+        if not os.path.isfile(filename): continue
         dep_package = resolve(dotted_package)
         include(_context, file=filename, package=dep_package)
+        print 'Found configuration file %s: <include package="%s" file="%s" />' % (filename, dotted_package, zcmlgroup)
 
 def load_overrides(_context, zcmlgroup='overrides.zcml'):
     load(_context, zcmlgroup, override=True)

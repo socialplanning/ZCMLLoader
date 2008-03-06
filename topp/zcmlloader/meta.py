@@ -8,14 +8,6 @@ from zope.schema import TextLine
 from zope.dottedname.resolve import resolve
 import os
 
-
-class IConfigFile(Interface):
-    """a config file to load up"""
-    file = BytesLine(
-        title=u'Configuration file name',
-        description=u'Name of a configuration file to be loaded',
-        required=True)
-
 class IEntryPoints(Interface):
     """an entry point group to load up"""
     group = TextLine(
@@ -24,13 +16,11 @@ class IEntryPoints(Interface):
         required=True)
 
 class IIncludes(Interface):
-    zcmlgroup = TextLine(
-        title=u"ZCML Group",
-        description=u"File group to be loaded",
+    target = TextLine(
+        title=u"target",
+        description=u"Plugin set to be loaded",
         required=True,
-        default=u'configure.zcml'
         )
-
 
 class IIncludeOverrides(Interface):
     zcmlgroup = TextLine(
@@ -40,56 +30,27 @@ class IIncludeOverrides(Interface):
         default=u'overrides.zcml'
         )
 
-
-_config = None
-
-def load_config(_context, file=None):
-    global _config
-    if file is None:
-        # do default?
-        pass
-    cp = ConfigParser()
-    cp.read(file)
-    _config = cp
-
-def load_entry_points(_content, group=None):
-    global _config
-
-    if group is None:
-        # do default?
-        pass
-
-    for ep in pkr.iter_entry_points(group):
-        dist = ep.dist
-        dist_name = dist.project_name
-        filename = ep.load()
-        _config.set(ep.name, dist_name, filename)
-
-def load(_context, zcmlgroup='configure.zcml', override=False):
-    global _config
+def load(_context, target):
     include = xmlconfig.include
-    if override:
-        include = xmlconfig.includeOverrides
-    cp = _config
 
-    try:
-        items = cp.items('opencore.plugin')
-    except NoSectionError:
-        print "no section: %s" %zcmlgroup
-        return
+    for ep in pkr.iter_entry_points('topp.zcmlloader'):
+        if ep.name != target:
+            pass
+        dotted_name = ep.module_name
 
-    for dist, dotted_package in items:
-        req = pkr.Requirement.parse(dist)
-        module_path = os.path.join(*dotted_package.split('.'))
-        filename = os.path.join(module_path, zcmlgroup)
-        filename = pkr.resource_filename(req, filename)
-        if not os.path.isfile(filename): continue
-        dep_package = resolve(dotted_package)
-        include(_context, file=filename, package=dep_package)
-        print 'Found configuration file %s: <include package="%s" file="%s" />' % (filename, dotted_package, zcmlgroup)
+        for zcmlgroup in ('configure.zcml', 'meta.zcml'):
+            filename = pkr.resource_filename(dotted_name, zcmlgroup)
+            if not os.path.isfile(filename): continue
+            dep_package = ep.load()
+            if zcmlgroup == 'overrides.zcml':
+                include = xcmlconfig.includeOverrides
+            xmlconfig.include(_context, file=filename, package=dep_package)
+            print 'Found configuration file %s: <include package="%s" file="%s" />' % (filename, dotted_name, zcmlgroup)
 
-def load_overrides(_context, zcmlgroup='overrides.zcml'):
-    load(_context, zcmlgroup, override=True)
+        for zcmlgroup in ('overrides.zcml',):
+            filename = pkr.resource_filename(dotted_name, zcmlgroup)
+            if not os.path.isfile(filename): continue
+            dep_package = ep.load()
+            xmlconfig.includeOverrides(_context, file=filename, package=dep_package)
+            print 'Found configuration file %s: <includeOverrides package="%s" file="%s" />' % (filename, dotted_name, zcmlgroup)
     
-def get_config(self):
-    return _config

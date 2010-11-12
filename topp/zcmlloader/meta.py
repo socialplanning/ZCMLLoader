@@ -35,7 +35,7 @@ def load(_context, target):
 
     for ep in pkr.iter_entry_points('topp.zcmlloader'):
         if ep.name != target:
-            pass
+            continue
         dotted_name = ep.module_name
 
         for zcmlgroup in ('configure.zcml', 'meta.zcml'):
